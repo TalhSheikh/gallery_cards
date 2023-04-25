@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="cards.css">
+    <title>Gallery</title>
+</head>
+<body>
+    <div class="carousel">
+        <div class="carousel-item">
+            <div class="carousel-box">
+                <div class="title">Karachi</div>
+                <div class="num">01</div>
+                <img src="https://cdn.britannica.com/85/128585-050-5A1BDD02/Karachi-Pakistan.jpg" />
+            </div>
+        </div>
+    
+        <div class="carousel-item">
+            <div class="carousel-box">
+                <div class="title">Lahore</div>
+                <div class="num">02</div>
+                <img src="https://images.unsplash.com/photo-1622546758596-f1f06ba11f58?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MXx8bGFob3JlfGVufDB8fDB8fA%3D%3D&w=1000&q=80" />
+            </div>
+        </div>
+    
+        <div class="carousel-item">
+            <div class="carousel-box">
+                <div class="title">Islamabad</div>
+                <div class="num">03</div>
+                <img
+                    src="https://upload.wikimedia.org/wikipedia/commons/e/eb/Faisal_Mosque%2C_Islamabad_III.jpg"
+                />
+            </div>
+        </div>
+    
+        <div class="carousel-item">
+            <div class="carousel-box">
+                <div class="title">Faisalabad</div>
+                <div class="num">04</div>
+                <img src="https://psca.gop.pk/wp-content/uploads/2021/03/faisalabad-2.png" />
+            </div>
+        </div>
+    
+        <div class="carousel-item">
+            <div class="carousel-box">
+                <div class="title">Gilgit Baltistan</div>
+                <div class="num">05</div>
+                <img src="https://i.tribune.com.pk/media/images/2113026-gilgitbaltistan-1575694752/2113026-gilgitbaltistan-1575694752.jpg" />
+            </div>
+        </div>
+    
+        <div class="carousel-item">
+            <div class="carousel-box">
+                <div class="title">Kashmir</div>
+                <div class="num">06</div>
+                <img src="https://www.fabhotels.com/blog/wp-content/uploads/2021/07/Places_to_Visit_in_Kashmir_600x400.jpg" />
+            </div>
+        </div>
+    
+        <div class="carousel-item">
+            <div class="carousel-box">
+                <div class="title">Peshawar</div>
+                <div class="num">07</div>
+                <img src="https://pix10.agoda.net/geo/city/3168/1_3168_02.jpg?ca=6&ce=1&s=1920x822" />
+            </div>
+        </div>
+    
+        <div class="carousel-item">
+            <div class="carousel-box">
+                <div class="title">Quetta</div>
+                <div class="num">08</div>
+                <img src="https://bhc.gov.pk/media/district-judiciary/quetta/intro/quetta_city.jpg?v=i11" />
+            </div>
+        </div>
+    
+        <div class="carousel-item">
+            <div class="carousel-box">
+                <div class="title">Hyderabad</div>
+                <div class="num">09</div>
+                <img src="https://static.toiimg.com/photo/msid-92654212,width-96,height-65.cms" />
+            </div>
+        </div>
+        <div class="carousel-item">
+            <div class="carousel-box">
+                <div class="title">Multan</div>
+                <div class="num">10</div>
+                <img src="https://i.pinimg.com/736x/57/e7/17/57e717364ab58b1b157e7a25479bb6d4.jpg"/>
+            </div>
+        </div>
+    </div>
+    <div class="cursor"></div>
+<div class="cursor cursor2"></div>
+<script>
+    /*--------------------
+Vars
+--------------------*/
+let progress = 50
+let startX = 0
+let active = 0
+let isDown = false
+
+/*--------------------
+Contants
+--------------------*/
+const speedWheel = 0.02
+const speedDrag = -0.1
+
+/*--------------------
+Get Z
+--------------------*/
+const getZindex = (array, index) => (array.map((_, i) => (index === i) ? array.length : array.length - Math.abs(index - i)))
+
+/*--------------------
+Items
+--------------------*/
+const $items = document.querySelectorAll('.carousel-item')
+const $cursors = document.querySelectorAll('.cursor')
+
+const displayItems = (item, index, active) => {
+  const zIndex = getZindex([...$items], active)[index]
+  item.style.setProperty('--zIndex', zIndex)
+  item.style.setProperty('--active', (index-active)/$items.length)
+}
+
+/*--------------------
+Animate
+--------------------*/
+const animate = () => {
+  progress = Math.max(0, Math.min(progress, 100))
+  active = Math.floor(progress/100*($items.length-1))
+  
+  $items.forEach((item, index) => displayItems(item, index, active))
+}
+animate()
+
+/*--------------------
+Click on Items
+--------------------*/
+$items.forEach((item, i) => {
+  item.addEventListener('click', () => {
+    progress = (i/$items.length) * 100 + 10
+    animate()
+  })
+})
+
+/*--------------------
+Handlers
+--------------------*/
+const handleWheel = e => {
+  const wheelProgress = e.deltaY * speedWheel
+  progress = progress + wheelProgress
+  animate()
+}
+
+const handleMouseMove = (e) => {
+  if (e.type === 'mousemove') {
+    $cursors.forEach(($cursor) => {
+      $cursor.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`
+    })
+  }
+  if (!isDown) return
+  const x = e.clientX || (e.touches && e.touches[0].clientX) || 0
+  const mouseProgress = (x - startX) * speedDrag
+  progress = progress + mouseProgress
+  startX = x
+  animate()
+}
+
+const handleMouseDown = e => {
+  isDown = true
+  startX = e.clientX || (e.touches && e.touches[0].clientX) || 0
+}
+
+const handleMouseUp = () => {
+  isDown = false
+}
+
+/*--------------------
+Listeners
+--------------------*/
+document.addEventListener('mousewheel', handleWheel)
+document.addEventListener('mousedown', handleMouseDown)
+document.addEventListener('mousemove', handleMouseMove)
+document.addEventListener('mouseup', handleMouseUp)
+document.addEventListener('touchstart', handleMouseDown)
+document.addEventListener('touchmove', handleMouseMove)
+document.addEventListener('touchend', handleMouseUp)
+</script>
+</body>
+</html>
